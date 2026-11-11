@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Family Medical Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; }
+    .hidden { display: none !important; }
+    /* iOS style safe area padding */
+    .app-container { padding-bottom: env(safe-area-inset-bottom); }
+  </style>
+</head>
+<body class="text-gray-800 antialiased app-container">
+
+  <!-- LOGIN VIEW -->
+  <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
+      <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Medical Tracker</h1>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">User ID</label>
+          <input type="text" id="login-userid" required class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">PIN</label>
+          <input type="password" id="login-pin" required pattern="[0-9]*" inputmode="numeric" class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition">
+          Sign In
+        </button>
+        <p id="login-error" class="text-red-500 text-sm text-center hidden">Invalid User ID or PIN</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
+      <h1 class="font-bold text-lg" id="user-greeting">Medical Tracker</h1>
+      <button onclick="logout()" class="text-sm bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Sign Out</button>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="flex bg-white shadow overflow-x-auto">
+      <button onclick="switchTab('records')" id="nav-records" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-blue-600 text-blue-600">Records</button>
+      <button onclick="switchTab('medicines')" id="nav-medicines" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500">Medicines</button>
+      <button onclick="switchTab('refills')" id="nav-refills" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500">Refills</button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 overflow-y-auto pb-24">
+      
+      <!-- Records Section -->
+      <section id="sec-records" class="space-y-4">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="font-bold text-gray-700 mb-3">Add New Record</h2>
+          <form id="form-record" class="space-y-3">
+            <input type="date" id="rec-date" required class="w-full border rounded p-2">
+            <input type="text" id="rec-diagnosis" placeholder="Diagnosis (e.g., Hypertension)" required class="w-full border rounded p-2">
+            <textarea id="rec-note" placeholder="Doctor's notes or observations..." required class="w-full border rounded p-2" rows="2"></textarea>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Record</button>
+          </form>
+        </div>
+        <div id="list-records" class="space-y-3">
+          <!-- Populated by JS -->
+          <p class="text-gray-500 text-center text-sm py-4">Loading records...</p>
+        </div>
+      </section>
+
+      <!-- Medicines Section -->
+      <section id="sec-medicines" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="font-bold text-gray-700 mb-3">Add Medicine</h2>
+          <form id="form-medicine" class="space-y-3">
+            <input type="text" id="med-name" placeholder="Medicine Name" required class="w-full border rounded p-2">
+            <input type="text" id="med-dose" placeholder="Dosage (e.g., 50mg)" required class="w-full border rounded p-2">
+            <input type="text" id="med-freq" placeholder="Frequency (e.g., Twice daily)" required class="w-full border rounded p-2">
+            <select id="med-status" class="w-full border rounded p-2 bg-white">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Medicine</button>
+          </form>
+        </div>
+        <div id="list-medicines" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Refills Section -->
+      <section id="sec-refills" class="space-y-4 hidden">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="font-bold text-gray-700 mb-3">Log Refill</h2>
+          <form id="form-refill" class="space-y-3">
+            <select id="refill-med-id" required class="w-full border rounded p-2 bg-white">
+              <option value="">Select Medicine...</option>
+              <!-- Populated by JS -->
+            </select>
+            <input type="date" id="refill-date" required class="w-full border rounded p-2">
+            <input type="text" id="refill-pharmacy" placeholder="Pharmacy Name" required class="w-full border rounded p-2">
+            <select id="refill-status" class="w-full border rounded p-2 bg-white">
+              <option value="Pending">Pending</option>
+              <option value="Picked Up">Picked Up</option>
+            </select>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Refill</button>
+          </form>
+        </div>
+        <div id="list-refills" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    // -------------------------------------------------------------------
+    // IMPORTANT: Replace this URL with your deployed Google Apps Script URL
+    // -------------------------------------------------------------------
+    const API_URL = "https://script.google.com/macros/s/AKfycbwgLQEsAiJqOkYiS_7S3jb7SwG2Le15HZ_9TR2_Ij4V5juxSXdB4YkFOPkzV8p9mXPDrw/exec"; 
+    
+    let currentUser = null;
+    let userMedicines = []; // Cache medicines for the dropdown
+
+    // Make an API Request
+    async function apiRequest(method, payload = null, tabName = "") {
+      const url = method === "GET" ? `${API_URL}?tab=${tabName}` : API_URL;
+      const options = {
+        method: method,
+        // text/plain avoids CORS preflight issues with Apps Script
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
+      };
+      if (payload) {
+        options.body = JSON.stringify(payload);
+      }
+      
+      try {
+        const response = await fetch(url, options);
+        return await response.json();
+      } catch (error) {
+        console.error("API Error:", error);
+        alert("Network error. Please try again.");
+        return null;
+      }
+    }
+
+    // --- Authentication ---
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.innerText = "Verifying...";
+      btn.disabled = true;
+
+      const userId = document.getElementById('login-userid').value.trim();
+      const pin = document.getElementById('login-pin').value.trim();
+
+      const profiles = await apiRequest("GET", null, "Profiles");
+      
+      if (profiles) {
+        const user = profiles.find(p => p.UserID === userId && p.Pin == pin);
+        if (user) {
+          currentUser = user;
+          document.getElementById('login-view').classList.add('hidden');
+          document.getElementById('dashboard-view').classList.remove('hidden');
+          document.getElementById('user-greeting').innerText = `${user.Name}'s Health`;
+          document.getElementById('login-error').classList.add('hidden');
+          loadAllData();
+        } else {
+          document.getElementById('login-error').classList.remove('hidden');
+        }
+      }
+      btn.innerText = "Sign In";
+      btn.disabled = false;
+    });
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('login-form').reset();
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('login-view').classList.remove('hidden');
+    }
+
+    // --- Tab Switching ---
+    function switchTab(tab) {
+      ['records', 'medicines', 'refills'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.replace('border-blue-600', 'border-transparent');
+        document.getElementById(`nav-${t}`).classList.replace('text-blue-600', 'text-gray-500');
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`nav-${tab}`).classList.replace('border-transparent', 'border-blue-600');
+      document.getElementById(`nav-${tab}`).classList.replace('text-gray-500', 'text-blue-600');
+    }
+
+    // --- Data Loading ---
+    async function loadAllData() {
+      loadRecords();
+      loadMedicines();
+      loadRefills();
+    }
+
+    async function loadRecords() {
+      const list = document.getElementById('list-records');
+      const data = await apiRequest("GET", null, "Medical Records");
+      if (!data) return;
+
+      const myRecords = data.filter(r => r.UserID === currentUser.UserID).reverse();
+      list.innerHTML = myRecords.length === 0 ? '<p class="text-center text-gray-500">No records found.</p>' : '';
+      
+      myRecords.forEach(r => {
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-bold text-gray-800">${r.Diagnosis}</h3>
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${r.Date}</span>
+            </div>
+            <p class="text-sm text-gray-600">${r.Note}</p>
+          </div>
+        `;
+      });
+    }
+
+    async function loadMedicines() {
+      const list = document.getElementById('list-medicines');
+      const dropdown = document.getElementById('refill-med-id');
+      const data = await apiRequest("GET", null, "Medicines");
+      if (!data) return;
+
+      userMedicines = data.filter(m => m.UserID === currentUser.UserID);
+      
+      list.innerHTML = userMedicines.length === 0 ? '<p class="text-center text-gray-500">No medicines found.</p>' : '';
+      dropdown.innerHTML = '<option value="">Select Medicine...</option>';
+
+      userMedicines.forEach(m => {
+        // Update Medicine List
+        const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-1">
+              <h3 class="font-bold text-gray-800">${m['Medicine Name']}</h3>
+              <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${m.Status}</span>
+            </div>
+            <p class="text-sm text-gray-600"><strong>Dose:</strong> ${m.Dosage}</p>
+            <p class="text-sm text-gray-600"><strong>Freq:</strong> ${m.Frequency}</p>
+          </div>
+        `;
+        // Update Refill Dropdown
+        if (m.Status === 'Active') {
+          dropdown.innerHTML += `<option value="${m.MedID}">${m['Medicine Name']}</option>`;
+        }
+      });
+    }
+
+    async function loadRefills() {
+      const list = document.getElementById('list-refills');
+      const data = await apiRequest("GET", null, "Refill Schedules");
+      if (!data) return;
+
+      // Filter refills to only include those matching the user's MedIDs
+      const myMedIds = userMedicines.map(m => m.MedID);
+      const myRefills = data.filter(r => myMedIds.includes(r.MedID)).sort((a,b) => new Date(a['Next Refill Date']) - new Date(b['Next Refill Date']));
+      
+      list.innerHTML = myRefills.length === 0 ? '<p class="text-center text-gray-500">No refills scheduled.</p>' : '';
+
+      myRefills.forEach(r => {
+        const medName = userMedicines.find(m => m.MedID === r.MedID)?.['Medicine Name'] || r.MedID;
+        const statusColor = r['Refill Status'] === 'Pending' ? 'text-yellow-600' : 'text-green-600';
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center border-l-4 ${r['Refill Status'] === 'Pending' ? 'border-yellow-400' : 'border-green-400'}">
+            <div>
+              <h3 class="font-bold text-gray-800">${medName}</h3>
+              <p class="text-sm text-gray-600">${r.Pharmacy}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-gray-800">${r['Next Refill Date']}</p>
+              <p class="text-xs font-bold ${statusColor}">${r['Refill Status']}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // --- Form Submissions (POST Data) ---
+    function generateId(prefix) {
+      return prefix + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    }
+
+    document.getElementById('form-record').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.innerText = "Saving..."; btn.disabled = true;
+
+      const payload = {
+        tab: "Medical Records",
+        rowValues: [
+          generateId('REC'),
+          currentUser.UserID,
+          document.getElementById('rec-date').value,
+          document.getElementById('rec-note').value,
+          document.getElementById('rec-diagnosis').value
+        ]
+      };
+      
+      await apiRequest("POST", payload);
+      e.target.reset();
+      btn.innerText = "Save Record"; btn.disabled = false;
+      loadRecords(); // Refresh list
+    });
+
+    document.getElementById('form-medicine').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.innerText = "Saving..."; btn.disabled = true;
+
+      const payload = {
+        tab: "Medicines",
+        rowValues: [
+          generateId('MED'),
+          currentUser.UserID,
+          document.getElementById('med-name').value,
+          document.getElementById('med-dose').value,
+          document.getElementById('med-freq').value,
+          document.getElementById('med-status').value
+        ]
+      };
+      
+      await apiRequest("POST", payload);
+      e.target.reset();
+      btn.innerText = "Save Medicine"; btn.disabled = false;
+      loadMedicines(); 
+    });
+
+    document.getElementById('form-refill').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.innerText = "Saving..."; btn.disabled = true;
+
+      const payload = {
+        tab: "Refill Schedules",
+        rowValues: [
+          generateId('REF'),
+          document.getElementById('refill-med-id').value,
+          document.getElementById('refill-date').value,
+          document.getElementById('refill-pharmacy').value,
+          document.getElementById('refill-status').value
+        ]
+      };
+      
+      await apiRequest("POST", payload);
+      e.target.reset();
+      btn.innerText = "Save Refill"; btn.disabled = false;
+      loadRefills();
+    });
+
+    // Set today's date as default for date inputs
+    document.getElementById('rec-date').valueAsDate = new Date();
+  </script>
+</body>
+</html>
