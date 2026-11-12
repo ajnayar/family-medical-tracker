@@ -8,7 +8,7 @@
   <style>
     body { background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
     .hidden { display: none !important; }
-    .grid-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: white; color: #3b82f6; }
+    .grid-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; background: white; color: #3b82f6; }
     .active-avatar { border-color: #3b82f6; background: #eff6ff; }
   </style>
 </head>
@@ -20,43 +20,43 @@
     
     <div class="grid grid-cols-3 gap-6 mb-8 max-w-sm w-full">
       <!-- Row 1 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('aj', 'AJ')">
-        <div id="avatar-aj" class="grid-avatar">AJ</div>
-        <span class="mt-2 text-sm font-medium">AJ</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('J', 'Jyothi')">
+        <div id="avatar-J" class="grid-avatar">J</div>
+        <span class="mt-2 text-sm font-medium">Jyothi</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('meg', 'Meg')">
-        <div id="avatar-meg" class="grid-avatar">M</div>
-        <span class="mt-2 text-sm font-medium">Meg</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('L', 'Leela')">
+        <div id="avatar-L" class="grid-avatar">L</div>
+        <span class="mt-2 text-sm font-medium">Leela</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('zoya', 'Zoya')">
-        <div id="avatar-zoya" class="grid-avatar">Z</div>
-        <span class="mt-2 text-sm font-medium">Zoya</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B1', 'Basava')">
+        <div id="avatar-B1" class="grid-avatar">B</div>
+        <span class="mt-2 text-sm font-medium">Basava</span>
       </div>
       <!-- Row 2 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('dad-aj', 'AJ\\'s Dad')">
-        <div id="avatar-dad-aj" class="grid-avatar">D1</div>
-        <span class="mt-2 text-sm font-medium text-center">AJ's Dad</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('R', 'Renuka')">
+        <div id="avatar-R" class="grid-avatar">R</div>
+        <span class="mt-2 text-sm font-medium">Renuka</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('mom-aj', 'AJ\\'s Mom')">
-        <div id="avatar-mom-aj" class="grid-avatar">M1</div>
-        <span class="mt-2 text-sm font-medium text-center">AJ's Mom</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B2', 'Binoy')">
+        <div id="avatar-B2" class="grid-avatar">B</div>
+        <span class="mt-2 text-sm font-medium">Binoy</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('sister', 'Sister')">
-        <div id="avatar-sister" class="grid-avatar">S</div>
-        <span class="mt-2 text-sm font-medium">Sister</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('P', 'Priya')">
+        <div id="avatar-P" class="grid-avatar">P</div>
+        <span class="mt-2 text-sm font-medium">Priya</span>
       </div>
       <!-- Row 3 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('dad-meg', 'Meg\\'s Dad')">
-        <div id="avatar-dad-meg" class="grid-avatar">D2</div>
-        <span class="mt-2 text-sm font-medium text-center">Meg's Dad</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('Z', 'Zoya')">
+        <div id="avatar-Z" class="grid-avatar">Z</div>
+        <span class="mt-2 text-sm font-medium">Zoya</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('mom-meg', 'Meg\\'s Mom')">
-        <div id="avatar-mom-meg" class="grid-avatar">M2</div>
-        <span class="mt-2 text-sm font-medium text-center">Meg's Mom</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('A', 'Aju')">
+        <div id="avatar-A" class="grid-avatar">A</div>
+        <span class="mt-2 text-sm font-medium">Aju</span>
       </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('bil', 'Brother-in-Law')">
-        <div id="avatar-bil" class="grid-avatar">B</div>
-        <span class="mt-2 text-sm font-medium text-center">Bro-in-law</span>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('M', 'Meg')">
+        <div id="avatar-M" class="grid-avatar">M</div>
+        <span class="mt-2 text-sm font-medium">Meg</span>
       </div>
     </div>
 
@@ -147,9 +147,9 @@
 
   <script>
     // -------------------------------------------------------------------
-    // IMPORTANT: Paste your NEW Google Apps Script URL here
+    // IMPORTANT: Paste your Google Apps Script URL here
     // -------------------------------------------------------------------
-    const API_URL = "https://script.google.com/macros/s/AKfycbylY418C3kcOu7BV6DRBO6uyZyEJaUmzqMfYPLYfytlWm-YLi-SEqVUJ0_rdAW_Wumd1g/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbw_CiEHA62LGiRj_DfHwno6gAd_8RVbY6h9lzdzkO87pDgQpfeeugfFxM7JhO6VifA4Ww/exec"; 
     
     let selectedUserId = null;
     let selectedUserName = null;
