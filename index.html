@@ -3,190 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Family Medical Tracker</title>
+  <title>Family Health</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; }
+    body { background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
     .hidden { display: none !important; }
-    /* iOS style safe area padding */
-    .app-container { padding-bottom: env(safe-area-inset-bottom); }
+    .grid-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: white; color: #3b82f6; }
+    .active-avatar { border-color: #3b82f6; background: #eff6ff; }
   </style>
 </head>
-<body class="text-gray-800 antialiased app-container">
+<body class="text-gray-800 antialiased pb-safe">
 
-  <!-- LOGIN VIEW -->
-  <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
-      <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">Medical Tracker</h1>
-      <form id="login-form" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">User ID</label>
-          <input type="text" id="login-userid" required class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">PIN</label>
-          <input type="password" id="login-pin" required pattern="[0-9]*" inputmode="numeric" class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition">
-          Sign In
-        </button>
-        <p id="login-error" class="text-red-500 text-sm text-center hidden">Invalid User ID or PIN</p>
-      </form>
+  <!-- 3x3 GRID LOGIN VIEW -->
+  <div id="login-view" class="min-h-screen flex flex-col items-center justify-center p-4">
+    <h1 class="text-2xl font-bold text-gray-800 mb-8">Select Profile</h1>
+    
+    <div class="grid grid-cols-3 gap-6 mb-8 max-w-sm w-full">
+      <!-- Row 1 -->
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('aj', 'AJ')">
+        <div id="avatar-aj" class="grid-avatar">AJ</div>
+        <span class="mt-2 text-sm font-medium">AJ</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('meg', 'Meg')">
+        <div id="avatar-meg" class="grid-avatar">M</div>
+        <span class="mt-2 text-sm font-medium">Meg</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('zoya', 'Zoya')">
+        <div id="avatar-zoya" class="grid-avatar">Z</div>
+        <span class="mt-2 text-sm font-medium">Zoya</span>
+      </div>
+      <!-- Row 2 -->
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('dad-aj', 'AJ\\'s Dad')">
+        <div id="avatar-dad-aj" class="grid-avatar">D1</div>
+        <span class="mt-2 text-sm font-medium text-center">AJ's Dad</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('mom-aj', 'AJ\\'s Mom')">
+        <div id="avatar-mom-aj" class="grid-avatar">M1</div>
+        <span class="mt-2 text-sm font-medium text-center">AJ's Mom</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('sister', 'Sister')">
+        <div id="avatar-sister" class="grid-avatar">S</div>
+        <span class="mt-2 text-sm font-medium">Sister</span>
+      </div>
+      <!-- Row 3 -->
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('dad-meg', 'Meg\\'s Dad')">
+        <div id="avatar-dad-meg" class="grid-avatar">D2</div>
+        <span class="mt-2 text-sm font-medium text-center">Meg's Dad</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('mom-meg', 'Meg\\'s Mom')">
+        <div id="avatar-mom-meg" class="grid-avatar">M2</div>
+        <span class="mt-2 text-sm font-medium text-center">Meg's Mom</span>
+      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('bil', 'Brother-in-Law')">
+        <div id="avatar-bil" class="grid-avatar">B</div>
+        <span class="mt-2 text-sm font-medium text-center">Bro-in-law</span>
+      </div>
+    </div>
+
+    <!-- PIN Entry (Hidden until profile tapped) -->
+    <div id="pin-section" class="hidden w-full max-w-sm bg-white p-6 rounded-xl shadow-lg text-center">
+      <h3 id="pin-prompt" class="font-bold text-gray-700 mb-4">Enter PIN for...</h3>
+      <input type="password" id="login-pin" pattern="[0-9]*" inputmode="numeric" class="w-full border-2 text-center text-2xl tracking-[0.5em] border-gray-300 rounded-md p-3 focus:border-blue-500 mb-4">
+      <button onclick="verifyPin()" id="login-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-md">Unlock</button>
+      <p id="login-error" class="text-red-500 text-sm mt-3 hidden">Incorrect PIN</p>
     </div>
   </div>
 
   <!-- DASHBOARD VIEW -->
   <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
-      <h1 class="font-bold text-lg" id="user-greeting">Medical Tracker</h1>
-      <button onclick="logout()" class="text-sm bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Sign Out</button>
+      <h1 class="font-bold text-lg" id="user-greeting">Health Dashboard</h1>
+      <button onclick="logout()" class="text-sm bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Switch User</button>
     </header>
 
-    <!-- Navigation -->
     <nav class="flex bg-white shadow overflow-x-auto">
-      <button onclick="switchTab('records')" id="nav-records" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-blue-600 text-blue-600">Records</button>
-      <button onclick="switchTab('medicines')" id="nav-medicines" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500">Medicines</button>
-      <button onclick="switchTab('refills')" id="nav-refills" class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500">Refills</button>
+      <button onclick="switchTab('records')" id="nav-records" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-blue-600 text-blue-600">Scan & Records</button>
+      <button onclick="switchTab('medicines')" id="nav-medicines" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-transparent text-gray-500">Inventory & Meds</button>
     </nav>
 
-    <!-- Main Content Area -->
     <main class="flex-1 p-4 overflow-y-auto pb-24">
       
       <!-- Records Section -->
       <section id="sec-records" class="space-y-4">
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="font-bold text-gray-700 mb-3">Add New Record</h2>
-          <form id="form-record" class="space-y-3">
-            <input type="date" id="rec-date" required class="w-full border rounded p-2">
-            <input type="text" id="rec-diagnosis" placeholder="Diagnosis (e.g., Hypertension)" required class="w-full border rounded p-2">
-            <textarea id="rec-note" placeholder="Doctor's notes or observations..." required class="w-full border rounded p-2" rows="2"></textarea>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Record</button>
+        <div class="bg-white p-4 rounded-lg shadow border-2 border-dashed border-gray-300">
+          <h2 class="font-bold text-gray-700 mb-3 text-center">📷 Upload Doctor's Note / Scan</h2>
+          <form id="form-record" class="space-y-4">
+            <!-- Datalist for common diagnoses -->
+            <input list="common-diagnoses" id="rec-diagnosis" placeholder="Diagnosis (Tap for common options)" required class="w-full border rounded p-3">
+            <datalist id="common-diagnoses">
+              <option value="General Checkup">
+              <option value="Hypertension (Blood Pressure)">
+              <option value="Diabetes (Blood Sugar)">
+              <option value="Cholesterol Check">
+              <option value="Fever / Infection">
+              <option value="Orthopedic / Joint Pain">
+            </datalist>
+            
+            <input type="date" id="rec-date" required class="w-full border rounded p-3">
+            
+            <!-- Camera Capture -->
+            <div class="flex items-center justify-center w-full">
+                <label for="rec-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <p class="mb-2 text-sm text-gray-500 font-semibold" id="file-label">Tap to take picture / scan</p>
+                    </div>
+                    <input id="rec-file" type="file" accept="image/*" capture="environment" class="hidden" />
+                </label>
+            </div>
+            
+            <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save PDF & Record</button>
           </form>
         </div>
-        <div id="list-records" class="space-y-3">
-          <!-- Populated by JS -->
-          <p class="text-gray-500 text-center text-sm py-4">Loading records...</p>
-        </div>
+        <div id="list-records" class="space-y-3"></div>
       </section>
 
       <!-- Medicines Section -->
       <section id="sec-medicines" class="space-y-4 hidden">
         <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="font-bold text-gray-700 mb-3">Add Medicine</h2>
+          <h2 class="font-bold text-gray-700 mb-3">Add Medicine & Track Inventory</h2>
           <form id="form-medicine" class="space-y-3">
-            <input type="text" id="med-name" placeholder="Medicine Name" required class="w-full border rounded p-2">
-            <input type="text" id="med-dose" placeholder="Dosage (e.g., 50mg)" required class="w-full border rounded p-2">
-            <input type="text" id="med-freq" placeholder="Frequency (e.g., Twice daily)" required class="w-full border rounded p-2">
-            <select id="med-status" class="w-full border rounded p-2 bg-white">
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Medicine</button>
-          </form>
-        </div>
-        <div id="list-medicines" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </section>
+            <input type="text" id="med-name" placeholder="Medicine Name" required class="w-full border rounded p-3">
+            <input type="text" id="med-dose" placeholder="Dosage (e.g., 1 tablet, 5ml)" required class="w-full border rounded p-3">
+            
+            <div class="flex space-x-2">
+              <input type="number" id="med-inventory" placeholder="Total tablets/ml you have" required class="w-1/2 border rounded p-3">
+              <input type="number" id="med-per-day" placeholder="Total taken per day" required class="w-1/2 border rounded p-3">
+            </div>
+            <p id="calc-refill" class="text-sm font-semibold text-green-600 text-center py-2 bg-green-50 rounded hidden"></p>
 
-      <!-- Refills Section -->
-      <section id="sec-refills" class="space-y-4 hidden">
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="font-bold text-gray-700 mb-3">Log Refill</h2>
-          <form id="form-refill" class="space-y-3">
-            <select id="refill-med-id" required class="w-full border rounded p-2 bg-white">
-              <option value="">Select Medicine...</option>
-              <!-- Populated by JS -->
+            <select id="med-status" class="w-full border rounded p-3 bg-white">
+              <option value="Active">Active Prescription</option>
+              <option value="Inactive">Past Course</option>
             </select>
-            <input type="date" id="refill-date" required class="w-full border rounded p-2">
-            <input type="text" id="refill-pharmacy" placeholder="Pharmacy Name" required class="w-full border rounded p-2">
-            <select id="refill-status" class="w-full border rounded p-2 bg-white">
-              <option value="Pending">Pending</option>
-              <option value="Picked Up">Picked Up</option>
-            </select>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded font-medium w-full">Save Refill</button>
+            <button type="submit" class="bg-green-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save Medicine</button>
           </form>
         </div>
-        <div id="list-refills" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
+        <div id="list-medicines" class="space-y-3"></div>
       </section>
 
     </main>
   </div>
 
-  <!-- SCRIPT -->
   <script>
     // -------------------------------------------------------------------
-    // IMPORTANT: Replace this URL with your deployed Google Apps Script URL
+    // IMPORTANT: Paste your NEW Google Apps Script URL here
     // -------------------------------------------------------------------
-    const API_URL = "https://script.google.com/macros/s/AKfycbwgLQEsAiJqOkYiS_7S3jb7SwG2Le15HZ_9TR2_Ij4V5juxSXdB4YkFOPkzV8p9mXPDrw/exec"; 
+    const API_URL = "YOUR_WEB_APP_URL_HERE"; 
     
+    let selectedUserId = null;
+    let selectedUserName = null;
     let currentUser = null;
-    let userMedicines = []; // Cache medicines for the dropdown
+    let base64ImageString = null;
 
-    // Make an API Request
     async function apiRequest(method, payload = null, tabName = "") {
       const url = method === "GET" ? `${API_URL}?tab=${tabName}` : API_URL;
-      const options = {
-        method: method,
-        // text/plain avoids CORS preflight issues with Apps Script
-        headers: { "Content-Type": "text/plain;charset=utf-8" }
-      };
-      if (payload) {
-        options.body = JSON.stringify(payload);
-      }
-      
+      const options = { method: method, headers: { "Content-Type": "text/plain;charset=utf-8" } };
+      if (payload) options.body = JSON.stringify(payload);
       try {
         const response = await fetch(url, options);
         return await response.json();
       } catch (error) {
-        console.error("API Error:", error);
-        alert("Network error. Please try again.");
+        alert("Network error. Please check your connection.");
         return null;
       }
     }
 
-    // --- Authentication ---
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('login-btn');
-      btn.innerText = "Verifying...";
-      btn.disabled = true;
+    // UI & Grid Logic
+    function selectProfile(id, name) {
+      document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
+      document.getElementById(`avatar-${id}`).classList.add('active-avatar');
+      
+      selectedUserId = id;
+      selectedUserName = name;
+      document.getElementById('pin-section').classList.remove('hidden');
+      document.getElementById('pin-prompt').innerText = `Enter PIN for ${name}`;
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').focus();
+    }
 
-      const userId = document.getElementById('login-userid').value.trim();
+    async function verifyPin() {
+      const btn = document.getElementById('login-btn');
+      btn.innerText = "Loading Data..."; btn.disabled = true;
       const pin = document.getElementById('login-pin').value.trim();
 
       const profiles = await apiRequest("GET", null, "Profiles");
-      
       if (profiles) {
-        const user = profiles.find(p => p.UserID === userId && p.Pin == pin);
+        // Case-insensitive match on ID
+        const user = profiles.find(p => p.UserID.toLowerCase() === selectedUserId.toLowerCase() && p.Pin == pin);
         if (user) {
           currentUser = user;
           document.getElementById('login-view').classList.add('hidden');
           document.getElementById('dashboard-view').classList.remove('hidden');
-          document.getElementById('user-greeting').innerText = `${user.Name}'s Health`;
-          document.getElementById('login-error').classList.add('hidden');
+          document.getElementById('user-greeting').innerText = `${selectedUserName}'s Profile`;
           loadAllData();
         } else {
           document.getElementById('login-error').classList.remove('hidden');
         }
       }
-      btn.innerText = "Sign In";
-      btn.disabled = false;
-    });
+      btn.innerText = "Unlock"; btn.disabled = false;
+    }
 
     function logout() {
       currentUser = null;
-      document.getElementById('login-form').reset();
+      document.getElementById('pin-section').classList.add('hidden');
+      document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('login-view').classList.remove('hidden');
     }
 
-    // --- Tab Switching ---
     function switchTab(tab) {
-      ['records', 'medicines', 'refills'].forEach(t => {
+      ['records', 'medicines'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
         document.getElementById(`nav-${t}`).classList.replace('border-blue-600', 'border-transparent');
         document.getElementById(`nav-${t}`).classList.replace('text-blue-600', 'text-gray-500');
@@ -196,125 +223,72 @@
       document.getElementById(`nav-${tab}`).classList.replace('text-gray-500', 'text-blue-600');
     }
 
-    // --- Data Loading ---
-    async function loadAllData() {
-      loadRecords();
-      loadMedicines();
-      loadRefills();
+    // Dynamic Inventory Math
+    const invInput = document.getElementById('med-inventory');
+    const perDayInput = document.getElementById('med-per-day');
+    const calcText = document.getElementById('calc-refill');
+
+    function calculateRefill() {
+      const inv = parseFloat(invInput.value);
+      const daily = parseFloat(perDayInput.value);
+      if (inv > 0 && daily > 0) {
+        const daysLeft = Math.floor(inv / daily);
+        let refillDate = new Date();
+        refillDate.setDate(refillDate.getDate() + daysLeft);
+        calcText.innerText = `Estimated Supply: ${daysLeft} days (Runs out: ${refillDate.toLocaleDateString()})`;
+        calcText.classList.remove('hidden');
+      } else {
+        calcText.classList.add('hidden');
+      }
     }
+    invInput.addEventListener('input', calculateRefill);
+    perDayInput.addEventListener('input', calculateRefill);
 
-    async function loadRecords() {
-      const list = document.getElementById('list-records');
-      const data = await apiRequest("GET", null, "Medical Records");
-      if (!data) return;
+    // Image Upload Handling
+    document.getElementById('rec-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('file-label').innerText = "✅ " + file.name + " ready to save";
+        const reader = new FileReader();
+        reader.onloadend = () => { base64ImageString = reader.result; };
+        reader.readAsDataURL(file);
+      }
+    });
 
-      const myRecords = data.filter(r => r.UserID === currentUser.UserID).reverse();
-      list.innerHTML = myRecords.length === 0 ? '<p class="text-center text-gray-500">No records found.</p>' : '';
-      
-      myRecords.forEach(r => {
-        list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="font-bold text-gray-800">${r.Diagnosis}</h3>
-              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${r.Date}</span>
-            </div>
-            <p class="text-sm text-gray-600">${r.Note}</p>
-          </div>
-        `;
-      });
-    }
-
-    async function loadMedicines() {
-      const list = document.getElementById('list-medicines');
-      const dropdown = document.getElementById('refill-med-id');
-      const data = await apiRequest("GET", null, "Medicines");
-      if (!data) return;
-
-      userMedicines = data.filter(m => m.UserID === currentUser.UserID);
-      
-      list.innerHTML = userMedicines.length === 0 ? '<p class="text-center text-gray-500">No medicines found.</p>' : '';
-      dropdown.innerHTML = '<option value="">Select Medicine...</option>';
-
-      userMedicines.forEach(m => {
-        // Update Medicine List
-        const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-        list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow">
-            <div class="flex justify-between items-center mb-1">
-              <h3 class="font-bold text-gray-800">${m['Medicine Name']}</h3>
-              <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${m.Status}</span>
-            </div>
-            <p class="text-sm text-gray-600"><strong>Dose:</strong> ${m.Dosage}</p>
-            <p class="text-sm text-gray-600"><strong>Freq:</strong> ${m.Frequency}</p>
-          </div>
-        `;
-        // Update Refill Dropdown
-        if (m.Status === 'Active') {
-          dropdown.innerHTML += `<option value="${m.MedID}">${m['Medicine Name']}</option>`;
-        }
-      });
-    }
-
-    async function loadRefills() {
-      const list = document.getElementById('list-refills');
-      const data = await apiRequest("GET", null, "Refill Schedules");
-      if (!data) return;
-
-      // Filter refills to only include those matching the user's MedIDs
-      const myMedIds = userMedicines.map(m => m.MedID);
-      const myRefills = data.filter(r => myMedIds.includes(r.MedID)).sort((a,b) => new Date(a['Next Refill Date']) - new Date(b['Next Refill Date']));
-      
-      list.innerHTML = myRefills.length === 0 ? '<p class="text-center text-gray-500">No refills scheduled.</p>' : '';
-
-      myRefills.forEach(r => {
-        const medName = userMedicines.find(m => m.MedID === r.MedID)?.['Medicine Name'] || r.MedID;
-        const statusColor = r['Refill Status'] === 'Pending' ? 'text-yellow-600' : 'text-green-600';
-        list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center border-l-4 ${r['Refill Status'] === 'Pending' ? 'border-yellow-400' : 'border-green-400'}">
-            <div>
-              <h3 class="font-bold text-gray-800">${medName}</h3>
-              <p class="text-sm text-gray-600">${r.Pharmacy}</p>
-            </div>
-            <div class="text-right">
-              <p class="font-semibold text-gray-800">${r['Next Refill Date']}</p>
-              <p class="text-xs font-bold ${statusColor}">${r['Refill Status']}</p>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // --- Form Submissions (POST Data) ---
-    function generateId(prefix) {
-      return prefix + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
+    // Form Submissions
+    function generateId(prefix) { return prefix + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(); }
 
     document.getElementById('form-record').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button');
-      btn.innerText = "Saving..."; btn.disabled = true;
+      btn.innerText = "Uploading to Drive & Saving..."; btn.disabled = true;
+      const diag = document.getElementById('rec-diagnosis').value;
+      const dDate = document.getElementById('rec-date').value;
 
       const payload = {
         tab: "Medical Records",
-        rowValues: [
-          generateId('REC'),
-          currentUser.UserID,
-          document.getElementById('rec-date').value,
-          document.getElementById('rec-note').value,
-          document.getElementById('rec-diagnosis').value
-        ]
+        userName: selectedUserName, // Used by Apps Script to create the personal folder
+        fileName: `${diag} - ${dDate}`,
+        fileData: base64ImageString,
+        rowValues: [generateId('REC'), currentUser.UserID, dDate, diag, diag] // Appending Note + Diagnosis
       };
       
       await apiRequest("POST", payload);
       e.target.reset();
-      btn.innerText = "Save Record"; btn.disabled = false;
-      loadRecords(); // Refresh list
+      document.getElementById('file-label').innerText = "Tap to take picture / scan";
+      base64ImageString = null;
+      btn.innerText = "Save PDF & Record"; btn.disabled = false;
+      loadRecords(); 
     });
 
     document.getElementById('form-medicine').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button');
       btn.innerText = "Saving..."; btn.disabled = true;
+
+      const inv = parseFloat(invInput.value);
+      const daily = parseFloat(perDayInput.value);
+      const daysLeft = (inv > 0 && daily > 0) ? Math.floor(inv / daily) : 0;
 
       const payload = {
         tab: "Medicines",
@@ -323,40 +297,65 @@
           currentUser.UserID,
           document.getElementById('med-name').value,
           document.getElementById('med-dose').value,
-          document.getElementById('med-freq').value,
-          document.getElementById('med-status').value
+          `${daily} per day`,
+          document.getElementById('med-status').value,
+          inv,
+          daily,
+          daysLeft
         ]
       };
       
       await apiRequest("POST", payload);
       e.target.reset();
+      calcText.classList.add('hidden');
       btn.innerText = "Save Medicine"; btn.disabled = false;
       loadMedicines(); 
     });
 
-    document.getElementById('form-refill').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('button');
-      btn.innerText = "Saving..."; btn.disabled = true;
-
-      const payload = {
-        tab: "Refill Schedules",
-        rowValues: [
-          generateId('REF'),
-          document.getElementById('refill-med-id').value,
-          document.getElementById('refill-date').value,
-          document.getElementById('refill-pharmacy').value,
-          document.getElementById('refill-status').value
-        ]
-      };
+    // Loaders
+    async function loadRecords() {
+      const list = document.getElementById('list-records');
+      const data = await apiRequest("GET", null, "Medical Records");
+      if (!data) return;
+      const myRecords = data.filter(r => r.UserID.toLowerCase() === currentUser.UserID.toLowerCase()).reverse();
+      list.innerHTML = myRecords.length === 0 ? '<p class="text-center text-gray-500">No records found.</p>' : '';
       
-      await apiRequest("POST", payload);
-      e.target.reset();
-      btn.innerText = "Save Refill"; btn.disabled = false;
-      loadRefills();
-    });
+      myRecords.forEach(r => {
+        const fileLinkHtml = r['File URL'] ? `<a href="${r['File URL']}" target="_blank" class="text-sm text-blue-600 underline mt-2 block">📄 View Scan / PDF</a>` : '';
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+            <div class="flex justify-between items-start">
+              <h3 class="font-bold text-gray-800">${r.Diagnosis}</h3>
+              <span class="text-xs bg-gray-100 px-2 py-1 rounded">${r.Date}</span>
+            </div>
+            ${fileLinkHtml}
+          </div>`;
+      });
+    }
 
-    // Set today's date as default for date inputs
+    async function loadMedicines() {
+      const list = document.getElementById('list-medicines');
+      const data = await apiRequest("GET", null, "Medicines");
+      if (!data) return;
+      const myMeds = data.filter(m => m.UserID.toLowerCase() === currentUser.UserID.toLowerCase());
+      list.innerHTML = myMeds.length === 0 ? '<p class="text-center text-gray-500">No medicines found.</p>' : '';
+      
+      myMeds.forEach(m => {
+        const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600';
+        let supplyNote = m['Days Remaining'] ? `<p class="text-sm font-semibold text-orange-600 mt-2">Supply: ~${m['Days Remaining']} days left</p>` : '';
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-1">
+              <h3 class="font-bold text-gray-800">${m['Medicine Name']}</h3>
+              <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${m.Status}</span>
+            </div>
+            <p class="text-sm text-gray-600"><strong>Dose:</strong> ${m.Dosage} | <strong>Freq:</strong> ${m.Frequency}</p>
+            ${supplyNote}
+          </div>`;
+      });
+    }
+
+    async function loadAllData() { loadRecords(); loadMedicines(); }
     document.getElementById('rec-date').valueAsDate = new Date();
   </script>
 </body>
