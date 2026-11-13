@@ -11,9 +11,30 @@
     .grid-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; background: white; color: #3b82f6; }
     .active-avatar { border-color: #3b82f6; background: #eff6ff; }
     
-    /* Custom Symptom Pill Styles */
+    /* Symptom Pills */
     .symptom-pill { transition: all 0.2s; user-select: none; }
     .symptom-selected { background-color: #3b82f6 !important; color: white !important; border-color: #3b82f6 !important; }
+    .symptom-suggested { background-color: #ffedd5 !important; color: #c2410c !important; border-color: #fdba74 !important; }
+    
+    /* Animations */
+    .flash-green { animation: flashSuccess 0.8s ease-in-out forwards; }
+    @keyframes flashSuccess { 
+      0% { transform: scale(1); background-color: #2563eb; } 
+      50% { transform: scale(1.05); background-color: #10b981; } 
+      100% { transform: scale(1); background-color: #10b981; } 
+    }
+    
+    /* Sticky Save Buttons */
+    .save-btn { transition: background-color 0.4s ease; }
+    
+    /* Thumbnails */
+    .thumb-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc; }
+    
+    /* Auto-complete Dropdown */
+    .med-suggestions { position: absolute; z-index: 50; width: 100%; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 4px; display: none; }
+    .med-option { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .med-option:hover { background: #f3f4f6; }
   </style>
 </head>
 <body class="text-gray-800 antialiased pb-safe">
@@ -21,16 +42,13 @@
   <!-- 3x3 GRID LOGIN VIEW -->
   <div id="login-view" class="min-h-screen flex flex-col items-center justify-center p-4">
     <h1 class="text-2xl font-bold text-gray-800 mb-8">Select Profile</h1>
-    
     <div class="grid grid-cols-3 gap-6 mb-8 max-w-sm w-full">
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('J', 'Jyothi')"><div id="avatar-J" class="grid-avatar">J</div><span class="mt-2 text-sm font-medium">Jyothi</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('L', 'Leela')"><div id="avatar-L" class="grid-avatar">L</div><span class="mt-2 text-sm font-medium">Leela</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B1', 'Basava')"><div id="avatar-B1" class="grid-avatar">B</div><span class="mt-2 text-sm font-medium">Basava</span></div>
-      
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('R', 'Renuka')"><div id="avatar-R" class="grid-avatar">R</div><span class="mt-2 text-sm font-medium">Renuka</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B2', 'Binoy')"><div id="avatar-B2" class="grid-avatar">B</div><span class="mt-2 text-sm font-medium">Binoy</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('P', 'Priya')"><div id="avatar-P" class="grid-avatar">P</div><span class="mt-2 text-sm font-medium">Priya</span></div>
-      
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('Z', 'Zoya')"><div id="avatar-Z" class="grid-avatar">Z</div><span class="mt-2 text-sm font-medium">Zoya</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('A', 'Aju')"><div id="avatar-A" class="grid-avatar">A</div><span class="mt-2 text-sm font-medium">Aju</span></div>
       <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('M', 'Meg')"><div id="avatar-M" class="grid-avatar">M</div><span class="mt-2 text-sm font-medium">Meg</span></div>
@@ -45,9 +63,9 @@
   </div>
 
   <!-- DASHBOARD VIEW -->
-  <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
+  <div id="dashboard-view" class="hidden min-h-screen flex flex-col relative">
     <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
-      <h1 class="font-bold text-lg" id="user-greeting">Health Dashboard</h1>
+      <h1 class="font-bold text-lg" id="user-greeting">Dashboard</h1>
       <button onclick="logout()" class="text-sm bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Switch User</button>
     </header>
 
@@ -58,80 +76,96 @@
 
     <main class="flex-1 p-4 overflow-y-auto pb-24">
       
-      <!-- REFILL ALERTS CONTAINER -->
       <div id="alert-area" class="w-full"></div>
 
-      <!-- Records Section -->
+      <!-- RECORDS SECTION -->
       <section id="sec-records" class="space-y-4">
-        <div class="bg-white p-4 rounded-lg shadow border-2 border-dashed border-gray-300">
-          <h2 class="font-bold text-gray-700 mb-3 text-center">Log Doctor Visit & Scan</h2>
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <h2 class="font-bold text-gray-700 mb-3 text-center">Doctor Visit & Details</h2>
           <form id="form-record" class="space-y-4">
             
             <input type="date" id="rec-date" required class="w-full border rounded p-3 text-gray-700">
             
-            <!-- Dynamic Visit Reason -->
             <input list="visit-reasons" id="rec-reason" placeholder="Reason for visit (Tap to select/type)" required class="w-full border rounded p-3">
-            <datalist id="visit-reasons">
-              <!-- Populated by JS to grow over time -->
-            </datalist>
+            <datalist id="visit-reasons"></datalist>
 
-            <!-- Clickable Symptom Pills -->
-            <div class="text-sm font-semibold text-gray-600">Select Symptoms / Issues:</div>
+            <!-- Symptoms -->
+            <div class="text-sm font-semibold text-gray-600">Tap Symptoms:</div>
             <div id="symptoms-container" class="flex flex-wrap gap-2">
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Physical body pain</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Fever</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Headache</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Eye problems</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Teeth problems</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Cough</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Dysentery / Diarrhea</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Diabetes</button>
-              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Hypertension / High Pressure</button>
-            </div>
-            <input type="text" id="rec-other-symptom" placeholder="Other symptoms..." class="w-full border rounded p-3">
-            
-            <!-- Camera Capture -->
-            <div class="flex items-center justify-center w-full">
-                <label for="rec-file" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                        <p class="text-sm text-blue-600 font-bold" id="file-label">📷 Tap to scan Doctor's Note</p>
-                    </div>
-                    <input id="rec-file" type="file" accept="image/*" capture="environment" class="hidden" />
-                </label>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Body pain</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Fever</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Headache</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Eye problems</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Cough</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Diarrhea</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Diabetes</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Hypertension</button>
             </div>
             
-            <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save Visit Record</button>
+            <div class="relative">
+              <input type="text" id="rec-other-symptom" placeholder="Type other symptoms..." class="w-full border rounded p-3" oninput="suggestSymptoms(this.value)">
+              <div id="dynamic-symptoms" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+            
+            <!-- Multi-Page Scanner -->
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+               <div class="text-sm font-semibold text-blue-800 mb-2">Scan Documents (Multi-Page):</div>
+               <select id="rec-doc-type" class="w-full border rounded p-2 mb-3 bg-white">
+                 <option value="Prescription">Prescription</option>
+                 <option value="Doctor Note">Doctor's Note</option>
+                 <option value="Medical Scan">Other (Scans, MRIs, X-Rays)</option>
+               </select>
+               <div id="thumb-container" class="thumb-grid"></div>
+               <label for="rec-file" class="flex justify-center w-full py-3 border-2 border-blue-400 border-dashed rounded cursor-pointer bg-white hover:bg-blue-100 text-blue-600 font-bold">
+                  📷 Tap to Add Page
+               </label>
+               <input id="rec-file" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleImageCapture(event)" />
+            </div>
+            
+            <button type="submit" id="btn-save-record" class="save-btn bg-gray-400 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md transition-colors">Save Record</button>
           </form>
         </div>
         <div id="list-records" class="space-y-3"></div>
       </section>
 
-      <!-- Medicines Section -->
+      <!-- MEDICINES SECTION -->
       <section id="sec-medicines" class="space-y-4 hidden">
-        <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="font-bold text-gray-700 mb-3">Add Medicine & Link Visit</h2>
-          <form id="form-medicine" class="space-y-3">
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <h2 class="font-bold text-gray-700 mb-3 text-center">Add Medicine</h2>
+          <form id="form-medicine" class="space-y-4">
             
-            <!-- Link to past visit -->
             <select id="med-linked-record" class="w-full border rounded p-3 bg-blue-50 font-medium">
               <option value="">Link to a Doctor's Visit (Optional)</option>
-              <!-- Populated by JS -->
             </select>
 
-            <input type="text" id="med-name" placeholder="Medicine Name" required class="w-full border rounded p-3">
-            <input type="text" id="med-dose" placeholder="Dosage (e.g., 1 tablet)" required class="w-full border rounded p-3">
+            <select id="med-type" class="w-full border rounded p-3 bg-white" onchange="adjustMedicineUI()">
+              <option value="Pill/Tablet">Pill / Tablet / Capsule</option>
+              <option value="Liquid/Tonic">Liquid / Tonic / Syrup</option>
+              <option value="Cream/Ointment">Cream / Ointment / Drops</option>
+            </select>
+
+            <div class="relative">
+              <input type="text" id="med-name" placeholder="Search Medicine Name (e.g. Tylenol)..." required class="w-full border rounded p-3" autocomplete="off" oninput="searchRxTerms(this.value)">
+              <div id="med-dropdown" class="med-suggestions shadow-lg"></div>
+            </div>
             
             <div class="flex space-x-2">
-              <input type="number" id="med-inventory" placeholder="Total pills you have" required class="w-1/2 border rounded p-3">
+              <input type="number" id="med-inventory" placeholder="Total Pills" required class="w-1/2 border rounded p-3">
               <input type="number" id="med-per-day" placeholder="Pills per day" required class="w-1/2 border rounded p-3">
             </div>
-            <p id="calc-refill" class="text-sm font-semibold text-green-600 text-center py-2 bg-green-50 rounded hidden"></p>
+            
+            <!-- Dynamic Refill & Calendar -->
+            <div id="calc-refill-container" class="hidden bg-green-50 p-3 rounded text-center border border-green-200">
+              <p id="calc-refill" class="text-sm font-semibold text-green-700"></p>
+              <button type="button" onclick="addToCalendar()" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded text-sm font-bold w-full shadow hover:bg-blue-700">📅 Add Refill Reminder to Calendar</button>
+            </div>
 
             <select id="med-status" class="w-full border rounded p-3 bg-white">
               <option value="Active">Active Prescription</option>
               <option value="Inactive">Past Course</option>
             </select>
-            <button type="submit" class="bg-green-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save Medicine</button>
+
+            <button type="submit" id="btn-save-med" class="save-btn bg-gray-400 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md transition-colors">Save Medicine</button>
           </form>
         </div>
         <div id="list-medicines" class="space-y-3"></div>
@@ -142,16 +176,27 @@
 
   <script>
     // -------------------------------------------------------------------
-    // IMPORTANT: Paste your Google Apps Script URL here
+    // IMPORTANT: Paste your NEW Google Apps Script URL here
     // -------------------------------------------------------------------
-    const API_URL = "https://script.google.com/macros/s/AKfycbw_CiEHA62LGiRj_DfHwno6gAd_8RVbY6h9lzdzkO87pDgQpfeeugfFxM7JhO6VifA4Ww/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbz4l9TbruIMlnynM4f-UFCItxxDriMuih8GlykspBh5BPo4wnOi02vEhl_xgwdj0364EA/exec"; 
     
+    // Globals
     let selectedUserId = null;
     let selectedUserName = null;
     let currentUser = null;
-    let base64ImageString = null;
-    let myRecordsGlobal = []; // Cache to link medicines
+    let myRecordsGlobal = [];
+    let currentRefillDate = null;
+    
+    // Record State
+    let capturedImages = [];
+    let lastRecordPayload = null; 
+    let lastMedPayload = null;
+    let autoLinkedRecordId = "";
+    
+    // Large internal symptom dictionary for typing suggestions
+    const symptomDictionary = ["Asthma", "Allergy", "Arthritis", "Back Pain", "Chest Pain", "Dizziness", "Earache", "Fatigue", "Heartburn", "Insomnia", "Joint Pain", "Nausea", "Rash", "Sore Throat", "Stomach Ache", "Vomiting"];
 
+    // API Wrapper
     async function apiRequest(method, payload = null, tabName = "") {
       const url = method === "GET" ? `${API_URL}?tab=${tabName}` : API_URL;
       const options = { method: method, headers: { "Content-Type": "text/plain;charset=utf-8" } };
@@ -160,18 +205,16 @@
         const response = await fetch(url, options);
         return await response.json();
       } catch (error) {
-        alert("Network error. Please check your connection.");
+        alert("Network error.");
         return null;
       }
     }
 
-    // --- UI Logic ---
+    // Login logic
     function selectProfile(id, name) {
       document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
       document.getElementById(`avatar-${id}`).classList.add('active-avatar');
-      
-      selectedUserId = id;
-      selectedUserName = name;
+      selectedUserId = id; selectedUserName = name;
       document.getElementById('pin-section').classList.remove('hidden');
       document.getElementById('pin-prompt').innerText = `Enter PIN for ${name}`;
       document.getElementById('login-pin').value = '';
@@ -182,7 +225,6 @@
       const btn = document.getElementById('login-btn');
       btn.innerText = "Loading..."; btn.disabled = true;
       const pin = document.getElementById('login-pin').value.trim();
-
       const profiles = await apiRequest("GET", null, "Profiles");
       if (profiles) {
         const user = profiles.find(p => p.UserID.toLowerCase() === selectedUserId.toLowerCase() && p.Pin == pin);
@@ -205,7 +247,7 @@
       document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('login-view').classList.remove('hidden');
-      document.getElementById('alert-area').innerHTML = ''; // Clear alerts
+      document.getElementById('alert-area').innerHTML = '';
     }
 
     function switchTab(tab) {
@@ -217,147 +259,276 @@
       document.getElementById(`sec-${tab}`).classList.remove('hidden');
       document.getElementById(`nav-${tab}`).classList.replace('border-transparent', 'border-blue-600');
       document.getElementById(`nav-${tab}`).classList.replace('text-gray-500', 'text-blue-600');
+      
+      // Auto-link requirement #5
+      if (tab === 'medicines' && autoLinkedRecordId !== "") {
+        document.getElementById('med-linked-record').value = autoLinkedRecordId;
+      }
     }
 
-    // --- Interactive Symptoms ---
+    // Interaction Observers for Buttons (Requirement #3 & #9)
+    function setupScrollObserver(btnId) {
+      const btn = document.getElementById(btnId);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) {
+            btn.classList.remove('bg-gray-400'); btn.classList.add('bg-blue-600');
+          } else {
+            btn.classList.remove('bg-blue-600'); btn.classList.add('bg-gray-400');
+          }
+        });
+      }, { threshold: 0.8 });
+      observer.observe(btn);
+    }
+    setupScrollObserver('btn-save-record');
+    setupScrollObserver('btn-save-med');
+
+    // Button Animation (Flash Green)
+    function triggerSaveAnimation(btn) {
+      const originalText = btn.innerText;
+      btn.innerText = "Record Saved!";
+      btn.classList.add('flash-green');
+      setTimeout(() => { 
+        btn.classList.remove('flash-green'); 
+        btn.innerText = originalText; 
+      }, 5000); // 5 sec cooldown lock
+    }
+
+    // Dynamic Symptoms (Requirement #2)
     function toggleSymptom(btn) {
       btn.classList.toggle('symptom-selected');
-      btn.classList.toggle('bg-gray-100');
-      btn.classList.toggle('text-gray-700');
+      if(btn.classList.contains('symptom-suggested')) {
+         btn.classList.replace('symptom-suggested', 'symptom-selected');
+      } else if (!btn.classList.contains('symptom-selected')) {
+         btn.classList.replace('text-white', 'text-gray-700');
+      }
     }
 
-    // --- Dynamic Refill Math ---
+    function suggestSymptoms(query) {
+      const container = document.getElementById('dynamic-symptoms');
+      container.innerHTML = '';
+      if(query.length < 2) return;
+      const matches = symptomDictionary.filter(s => s.toLowerCase().includes(query.toLowerCase()));
+      matches.forEach(m => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = m;
+        btn.className = "symptom-pill symptom-suggested px-3 py-1 rounded-full text-sm font-medium border";
+        btn.onclick = function() { toggleSymptom(this); };
+        container.appendChild(btn);
+      });
+    }
+
+    // Medicine Auto-Complete API (Requirement #6)
+    let searchTimeout;
+    function searchRxTerms(query) {
+      clearTimeout(searchTimeout);
+      const dropdown = document.getElementById('med-dropdown');
+      if (query.length < 3) { dropdown.style.display = 'none'; return; }
+      
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://clinicaltables.nlm.nih.gov/api/rxterms/v3/search?terms=${query}&ef=STRENGTHS_AND_FORMS`);
+          const data = await res.json();
+          if (data[1].length > 0) {
+            dropdown.innerHTML = '';
+            data[1].forEach((name, index) => {
+              const forms = data[2].STRENGTHS_AND_FORMS[index] || [];
+              forms.forEach(form => {
+                const opt = document.createElement('div');
+                opt.className = 'med-option';
+                opt.innerText = `${name} (${form})`;
+                opt.onclick = () => {
+                  document.getElementById('med-name').value = `${name} (${form})`;
+                  dropdown.style.display = 'none';
+                };
+                dropdown.appendChild(opt);
+              });
+            });
+            dropdown.style.display = 'block';
+          }
+        } catch(e) {}
+      }, 400);
+    }
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => { if(e.target.id !== 'med-name') document.getElementById('med-dropdown').style.display = 'none'; });
+
+    // Multi-Image Capture (Requirement #4)
+    function handleImageCapture(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => { 
+          capturedImages.push(reader.result); 
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.className = "thumb";
+          document.getElementById('thumb-container').appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Dynamic Medicine Inputs (Requirement #7)
+    function adjustMedicineUI() {
+      const type = document.getElementById('med-type').value;
+      const invLabel = document.getElementById('med-inventory');
+      const dayLabel = document.getElementById('med-per-day');
+      const calcContainer = document.getElementById('calc-refill-container');
+
+      if (type === 'Pill/Tablet') {
+        invLabel.placeholder = "Total Pills"; dayLabel.placeholder = "Pills per day";
+        dayLabel.style.display = "block"; calcContainer.style.display = "block";
+      } else if (type === 'Liquid/Tonic') {
+        invLabel.placeholder = "Total volume (ml)"; dayLabel.placeholder = "ml per day";
+        dayLabel.style.display = "block"; calcContainer.style.display = "block";
+      } else { // Cream
+        invLabel.placeholder = "Total Tubes/Grams"; dayLabel.placeholder = "Applications per day";
+        dayLabel.style.display = "none"; calcContainer.style.display = "none"; // Hard to predict cream depletion math
+      }
+      calculateRefill();
+    }
+
     const invInput = document.getElementById('med-inventory');
     const perDayInput = document.getElementById('med-per-day');
-    const calcText = document.getElementById('calc-refill');
-
     function calculateRefill() {
-      const inv = parseFloat(invInput.value);
-      const daily = parseFloat(perDayInput.value);
+      const type = document.getElementById('med-type').value;
+      if (type === 'Cream/Ointment') return;
+      const inv = parseFloat(invInput.value); const daily = parseFloat(perDayInput.value);
       if (inv > 0 && daily > 0) {
         const daysLeft = Math.floor(inv / daily);
-        calcText.innerText = `Supply: ${daysLeft} days left`;
-        calcText.classList.remove('hidden');
+        let rDate = new Date(); rDate.setDate(rDate.getDate() + daysLeft);
+        currentRefillDate = rDate;
+        document.getElementById('calc-refill').innerText = `Supply ends around: ${rDate.toLocaleDateString()}`;
+        document.getElementById('calc-refill-container').classList.remove('hidden');
       } else {
-        calcText.classList.add('hidden');
+        document.getElementById('calc-refill-container').classList.add('hidden');
+        currentRefillDate = null;
       }
     }
     invInput.addEventListener('input', calculateRefill);
     perDayInput.addEventListener('input', calculateRefill);
 
-    // --- Camera Handling ---
-    document.getElementById('rec-file').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        document.getElementById('file-label').innerText = "✅ Note Scanned!";
-        const reader = new FileReader();
-        reader.onloadend = () => { base64ImageString = reader.result; };
-        reader.readAsDataURL(file);
-      }
-    });
+    function addToCalendar() {
+      const medName = document.getElementById('med-name').value || "Medicine";
+      if (!currentRefillDate) return;
+      const dStr = `${currentRefillDate.getFullYear()}${String(currentRefillDate.getMonth()+1).padStart(2,'0')}${String(currentRefillDate.getDate()).padStart(2,'0')}`;
+      const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:${dStr}\nDTEND;VALUE=DATE:${dStr}\nSUMMARY:Refill ${medName}\nBEGIN:VALARM\nTRIGGER:-P2D\nACTION:DISPLAY\nDESCRIPTION:Refill Reminder\nEND:VALARM\nEND:VEVENT\nEND:VCALENDAR`;
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Refill_${medName}.ics`;
+      link.click();
+    }
 
-    // --- Form Submissions ---
+    // Forms Submissions
     function generateId(prefix) { return prefix + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(); }
 
     document.getElementById('form-record').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = e.target.querySelector('button');
-      btn.innerText = "Saving Visit..."; btn.disabled = true;
+      const btn = document.getElementById('btn-save-record');
       
+      // Cooldown Check
+      if(btn.disabled) return;
+
       const dDate = document.getElementById('rec-date').value;
       const reason = document.getElementById('rec-reason').value;
+      const docType = document.getElementById('rec-doc-type').value;
       
-      // Gather selected symptoms
       const selectedPills = Array.from(document.querySelectorAll('.symptom-selected')).map(p => p.innerText);
       const otherSymptom = document.getElementById('rec-other-symptom').value.trim();
       if (otherSymptom) selectedPills.push(otherSymptom);
       const symptomsString = selectedPills.join(', ') || 'No symptoms reported';
+      const rID = generateId('REC');
 
       const payload = {
-        tab: "Medical Records",
-        userName: selectedUserName,
-        fileName: `${reason} - ${dDate}`,
-        fileData: base64ImageString,
-        // Backend Schema: RecordID, UserID, Date, Visit Reason, Symptoms, (FileURL appends automatically)
-        rowValues: [generateId('REC'), currentUser.UserID, dDate, reason, symptomsString] 
+        tab: "Medical Records", userName: selectedUserName,
+        fileName: `${docType} - ${reason} - ${dDate}`,
+        fileDataArray: capturedImages,
+        rowValues: [rID, currentUser.UserID, dDate, reason, symptomsString, ""] 
       };
+
+      // Duplicate Check
+      if(lastRecordPayload && JSON.stringify(payload.rowValues) === JSON.stringify(lastRecordPayload.rowValues) && capturedImages.length === lastRecordPayload.fileDataArray.length) {
+         if(!confirm("Duplicate entry observed. Do you want to add this data again?")) return;
+      }
       
+      btn.innerText = "Saving Visit..."; btn.disabled = true;
       await apiRequest("POST", payload);
-      e.target.reset();
       
-      // Reset UI state
-      document.getElementById('rec-date').valueAsDate = new Date();
+      triggerSaveAnimation(btn);
+      lastRecordPayload = payload;
+      autoLinkedRecordId = rID; // Save for medicine linking
+      
+      // Reset UI
+      e.target.reset(); document.getElementById('rec-date').valueAsDate = new Date();
       document.querySelectorAll('.symptom-selected').forEach(toggleSymptom);
-      document.getElementById('file-label').innerText = "📷 Tap to scan Doctor's Note";
-      base64ImageString = null;
-      btn.innerText = "Save Visit Record"; btn.disabled = false;
+      capturedImages = []; document.getElementById('thumb-container').innerHTML = '';
       
-      loadAllData(); // Reload to update dropdowns
+      setTimeout(() => { btn.disabled = false; }, 5000); // 5 sec cooldown
+      loadAllData();
     });
 
     document.getElementById('form-medicine').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = e.target.querySelector('button');
-      btn.innerText = "Saving..."; btn.disabled = true;
+      const btn = document.getElementById('btn-save-med');
+      if(btn.disabled) return;
 
-      const inv = parseFloat(invInput.value);
-      const daily = parseFloat(perDayInput.value);
+      const type = document.getElementById('med-type').value;
+      const inv = parseFloat(invInput.value) || 0;
+      const daily = type === 'Cream/Ointment' ? 0 : (parseFloat(perDayInput.value) || 0);
       const daysLeft = (inv > 0 && daily > 0) ? Math.floor(inv / daily) : 0;
       const linkedRecord = document.getElementById('med-linked-record').value;
 
       const payload = {
         tab: "Medicines",
-        // Backend Schema: MedID, UserID, Linked Record, Medicine Name, Dosage, Frequency, Status, Inventory Left, Doses Per Day, Days Remaining
         rowValues: [
-          generateId('MED'),
-          currentUser.UserID,
-          linkedRecord,
-          document.getElementById('med-name').value,
-          document.getElementById('med-dose').value,
-          `${daily} per day`,
+          generateId('MED'), currentUser.UserID, linkedRecord,
+          document.getElementById('med-name').value, type,
+          daily > 0 ? `${daily} per day` : 'As needed',
           document.getElementById('med-status').value,
-          inv,
-          daily,
-          daysLeft
+          inv, daily, daysLeft
         ]
       };
       
+      btn.innerText = "Saving..."; btn.disabled = true;
       await apiRequest("POST", payload);
-      e.target.reset();
-      calcText.classList.add('hidden');
-      btn.innerText = "Save Medicine"; btn.disabled = false;
+      triggerSaveAnimation(btn);
+
+      e.target.reset(); document.getElementById('calc-refill-container').classList.add('hidden');
+      currentRefillDate = null; adjustMedicineUI();
+      
+      setTimeout(() => { btn.disabled = false; }, 5000);
       loadMedicines(); 
     });
 
-    // --- Loaders & Dynamic UI Builders ---
+    // Delete Protocol (Requirement #1 & #8)
+    async function deleteItem(id, tab) {
+      if(!confirm("Are you sure you want to delete this record? Any linked PDFs in Drive will also be moved to Trash.")) return;
+      await apiRequest("POST", { action: "DELETE", tab: tab, id: id });
+      loadAllData();
+    }
+
+    // Loaders
     async function loadRecords() {
       const list = document.getElementById('list-records');
       const data = await apiRequest("GET", null, "Medical Records");
       if (!data) return;
-      
       myRecordsGlobal = data.filter(r => r.UserID.toLowerCase() === currentUser.UserID.toLowerCase()).reverse();
       
-      // 1. Build the Dynamic Visit Reasons Dropdown (Learning AI)
       const defaultReasons = ["General Physician", "Eye Doctor", "Diabetics Specialist", "Urologist", "Neurologist", "Cardiologist"];
       const customReasons = myRecordsGlobal.map(r => r['Visit Reason']).filter(Boolean);
-      const allReasons = [...new Set([...defaultReasons, ...customReasons])].sort();
-      
-      document.getElementById('visit-reasons').innerHTML = allReasons.map(r => `<option value="${r}">`).join('');
+      document.getElementById('visit-reasons').innerHTML = [...new Set([...defaultReasons, ...customReasons])].sort().map(r => `<option value="${r}">`).join('');
 
-      // 2. Build the "Link to Record" Dropdown in Medicines Tab
       const linkSelect = document.getElementById('med-linked-record');
       linkSelect.innerHTML = '<option value="">None (General Prescription)</option>';
-      myRecordsGlobal.forEach(r => {
-         linkSelect.innerHTML += `<option value="${r.RecordID}">${r.Date}: ${r['Visit Reason']}</option>`;
-      });
+      myRecordsGlobal.forEach(r => { linkSelect.innerHTML += `<option value="${r.RecordID}">${r.Date}: ${r['Visit Reason']}</option>`; });
 
-      // 3. Render the Records UI
       list.innerHTML = myRecordsGlobal.length === 0 ? '<p class="text-center text-gray-500 mt-4">No visits logged yet.</p>' : '';
       myRecordsGlobal.forEach(r => {
-        const fileLinkHtml = r['File URL'] ? `<a href="${r['File URL']}" target="_blank" class="text-sm font-bold text-blue-600 underline mt-2 block">📄 View Scanned Note</a>` : '';
+        const fileLinkHtml = r['File URL'] ? `<a href="${r['File URL']}" target="_blank" class="text-sm font-bold text-blue-600 underline mt-2 block">📄 View PDF Scan</a>` : '';
         list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-            <div class="flex justify-between items-start">
+          <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 relative">
+            <button onclick="deleteItem('${r.RecordID}', 'Medical Records')" class="absolute top-2 right-2 text-red-500 hover:bg-red-50 p-1 rounded">🗑️</button>
+            <div class="flex justify-between items-start pr-6">
               <h3 class="font-bold text-gray-800 text-lg">${r['Visit Reason']}</h3>
               <span class="text-xs bg-gray-100 font-semibold px-2 py-1 rounded border">${r.Date}</span>
             </div>
@@ -372,53 +543,40 @@
       const alertArea = document.getElementById('alert-area');
       const data = await apiRequest("GET", null, "Medicines");
       if (!data) return;
-      
       const myMeds = data.filter(m => m.UserID.toLowerCase() === currentUser.UserID.toLowerCase());
       list.innerHTML = myMeds.length === 0 ? '<p class="text-center text-gray-500 mt-4">No medicines logged yet.</p>' : '';
-      
       let alertsHtml = '';
 
       myMeds.forEach(m => {
-        // Build Refill Alerts
         if (m.Status === 'Active' && m['Days Remaining'] !== "" && parseInt(m['Days Remaining']) <= 2) {
           alertsHtml += `<div class="bg-red-100 border-l-4 border-red-600 text-red-800 p-3 mb-4 rounded shadow font-bold flex items-center justify-between">
             <span>⚠️ <b>${m['Medicine Name']}</b> needs a refill! Only ${m['Days Remaining']} days left.</span>
           </div>`;
         }
-
-        // Cross-reference Linked Record
         let linkedNote = '';
         if (m['Linked Record'] && myRecordsGlobal.length > 0) {
            const linkedObj = myRecordsGlobal.find(r => r.RecordID === m['Linked Record']);
-           if (linkedObj) {
-               linkedNote = `<div class="mt-2 text-xs bg-blue-50 text-blue-800 p-2 rounded border border-blue-100">🔗 Prescribed during: <b>${linkedObj['Visit Reason']}</b> (${linkedObj.Date})</div>`;
-           }
+           if (linkedObj) linkedNote = `<div class="mt-2 text-xs bg-blue-50 text-blue-800 p-2 rounded border border-blue-100">🔗 Prescribed during: <b>${linkedObj['Visit Reason']}</b> (${linkedObj.Date})</div>`;
         }
-
         const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200';
-        let supplyNote = m['Days Remaining'] ? `<p class="text-sm font-semibold text-orange-600 mt-2">Supply: ~${m['Days Remaining']} days left</p>` : '';
+        let supplyNote = m['Days Remaining'] && m.Dosage !== 'Cream/Ointment' ? `<p class="text-sm font-semibold text-orange-600 mt-2">Supply: ~${m['Days Remaining']} days left</p>` : '';
         
         list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow border">
-            <div class="flex justify-between items-center mb-1">
+          <div class="bg-white p-4 rounded-lg shadow border relative">
+            <button onclick="deleteItem('${m.MedID}', 'Medicines')" class="absolute top-2 right-2 text-red-500 hover:bg-red-50 p-1 rounded">🗑️</button>
+            <div class="flex justify-between items-center mb-1 pr-6">
               <h3 class="font-bold text-gray-800 text-lg">${m['Medicine Name']}</h3>
               <span class="text-xs px-2 py-1 rounded-full border ${statusColor}">${m.Status}</span>
             </div>
-            <p class="text-sm text-gray-600"><strong>Dose:</strong> ${m.Dosage} | <strong>Freq:</strong> ${m.Frequency}</p>
+            <p class="text-sm text-gray-600"><strong>Type:</strong> ${m.Dosage} | <strong>Freq:</strong> ${m.Frequency}</p>
             ${supplyNote}
             ${linkedNote}
           </div>`;
       });
-
       alertArea.innerHTML = alertsHtml;
     }
 
-    async function loadAllData() { 
-      await loadRecords(); // Important: Load records first so medicines can cross-reference them
-      loadMedicines(); 
-    }
-    
-    // Initialize date to today
+    async function loadAllData() { await loadRecords(); loadMedicines(); }
     document.getElementById('rec-date').valueAsDate = new Date();
   </script>
 </body>
