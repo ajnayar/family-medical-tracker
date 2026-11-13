@@ -10,6 +10,10 @@
     .hidden { display: none !important; }
     .grid-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; background: white; color: #3b82f6; }
     .active-avatar { border-color: #3b82f6; background: #eff6ff; }
+    
+    /* Custom Symptom Pill Styles */
+    .symptom-pill { transition: all 0.2s; user-select: none; }
+    .symptom-selected { background-color: #3b82f6 !important; color: white !important; border-color: #3b82f6 !important; }
   </style>
 </head>
 <body class="text-gray-800 antialiased pb-safe">
@@ -19,48 +23,19 @@
     <h1 class="text-2xl font-bold text-gray-800 mb-8">Select Profile</h1>
     
     <div class="grid grid-cols-3 gap-6 mb-8 max-w-sm w-full">
-      <!-- Row 1 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('J', 'Jyothi')">
-        <div id="avatar-J" class="grid-avatar">J</div>
-        <span class="mt-2 text-sm font-medium">Jyothi</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('L', 'Leela')">
-        <div id="avatar-L" class="grid-avatar">L</div>
-        <span class="mt-2 text-sm font-medium">Leela</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B1', 'Basava')">
-        <div id="avatar-B1" class="grid-avatar">B</div>
-        <span class="mt-2 text-sm font-medium">Basava</span>
-      </div>
-      <!-- Row 2 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('R', 'Renuka')">
-        <div id="avatar-R" class="grid-avatar">R</div>
-        <span class="mt-2 text-sm font-medium">Renuka</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B2', 'Binoy')">
-        <div id="avatar-B2" class="grid-avatar">B</div>
-        <span class="mt-2 text-sm font-medium">Binoy</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('P', 'Priya')">
-        <div id="avatar-P" class="grid-avatar">P</div>
-        <span class="mt-2 text-sm font-medium">Priya</span>
-      </div>
-      <!-- Row 3 -->
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('Z', 'Zoya')">
-        <div id="avatar-Z" class="grid-avatar">Z</div>
-        <span class="mt-2 text-sm font-medium">Zoya</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('A', 'Aju')">
-        <div id="avatar-A" class="grid-avatar">A</div>
-        <span class="mt-2 text-sm font-medium">Aju</span>
-      </div>
-      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('M', 'Meg')">
-        <div id="avatar-M" class="grid-avatar">M</div>
-        <span class="mt-2 text-sm font-medium">Meg</span>
-      </div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('J', 'Jyothi')"><div id="avatar-J" class="grid-avatar">J</div><span class="mt-2 text-sm font-medium">Jyothi</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('L', 'Leela')"><div id="avatar-L" class="grid-avatar">L</div><span class="mt-2 text-sm font-medium">Leela</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B1', 'Basava')"><div id="avatar-B1" class="grid-avatar">B</div><span class="mt-2 text-sm font-medium">Basava</span></div>
+      
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('R', 'Renuka')"><div id="avatar-R" class="grid-avatar">R</div><span class="mt-2 text-sm font-medium">Renuka</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('B2', 'Binoy')"><div id="avatar-B2" class="grid-avatar">B</div><span class="mt-2 text-sm font-medium">Binoy</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('P', 'Priya')"><div id="avatar-P" class="grid-avatar">P</div><span class="mt-2 text-sm font-medium">Priya</span></div>
+      
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('Z', 'Zoya')"><div id="avatar-Z" class="grid-avatar">Z</div><span class="mt-2 text-sm font-medium">Zoya</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('A', 'Aju')"><div id="avatar-A" class="grid-avatar">A</div><span class="mt-2 text-sm font-medium">Aju</span></div>
+      <div class="flex flex-col items-center cursor-pointer" onclick="selectProfile('M', 'Meg')"><div id="avatar-M" class="grid-avatar">M</div><span class="mt-2 text-sm font-medium">Meg</span></div>
     </div>
 
-    <!-- PIN Entry (Hidden until profile tapped) -->
     <div id="pin-section" class="hidden w-full max-w-sm bg-white p-6 rounded-xl shadow-lg text-center">
       <h3 id="pin-prompt" class="font-bold text-gray-700 mb-4">Enter PIN for...</h3>
       <input type="password" id="login-pin" pattern="[0-9]*" inputmode="numeric" class="w-full border-2 text-center text-2xl tracking-[0.5em] border-gray-300 rounded-md p-3 focus:border-blue-500 mb-4">
@@ -77,42 +52,55 @@
     </header>
 
     <nav class="flex bg-white shadow overflow-x-auto">
-      <button onclick="switchTab('records')" id="nav-records" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-blue-600 text-blue-600">Scan & Records</button>
-      <button onclick="switchTab('medicines')" id="nav-medicines" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-transparent text-gray-500">Inventory & Meds</button>
+      <button onclick="switchTab('records')" id="nav-records" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-blue-600 text-blue-600">Doctor Visits</button>
+      <button onclick="switchTab('medicines')" id="nav-medicines" class="flex-1 py-3 px-2 text-center font-medium border-b-2 border-transparent text-gray-500">Medicines</button>
     </nav>
 
     <main class="flex-1 p-4 overflow-y-auto pb-24">
       
+      <!-- REFILL ALERTS CONTAINER -->
+      <div id="alert-area" class="w-full"></div>
+
       <!-- Records Section -->
       <section id="sec-records" class="space-y-4">
         <div class="bg-white p-4 rounded-lg shadow border-2 border-dashed border-gray-300">
-          <h2 class="font-bold text-gray-700 mb-3 text-center">📷 Upload Doctor's Note / Scan</h2>
+          <h2 class="font-bold text-gray-700 mb-3 text-center">Log Doctor Visit & Scan</h2>
           <form id="form-record" class="space-y-4">
-            <!-- Datalist for common diagnoses -->
-            <input list="common-diagnoses" id="rec-diagnosis" placeholder="Diagnosis (Tap for common options)" required class="w-full border rounded p-3">
-            <datalist id="common-diagnoses">
-              <option value="General Checkup">
-              <option value="Hypertension (Blood Pressure)">
-              <option value="Diabetes (Blood Sugar)">
-              <option value="Cholesterol Check">
-              <option value="Fever / Infection">
-              <option value="Orthopedic / Joint Pain">
-            </datalist>
             
-            <input type="date" id="rec-date" required class="w-full border rounded p-3">
+            <input type="date" id="rec-date" required class="w-full border rounded p-3 text-gray-700">
+            
+            <!-- Dynamic Visit Reason -->
+            <input list="visit-reasons" id="rec-reason" placeholder="Reason for visit (Tap to select/type)" required class="w-full border rounded p-3">
+            <datalist id="visit-reasons">
+              <!-- Populated by JS to grow over time -->
+            </datalist>
+
+            <!-- Clickable Symptom Pills -->
+            <div class="text-sm font-semibold text-gray-600">Select Symptoms / Issues:</div>
+            <div id="symptoms-container" class="flex flex-wrap gap-2">
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Physical body pain</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Fever</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Headache</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Eye problems</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Teeth problems</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Cough</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Dysentery / Diarrhea</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Diabetes</button>
+              <button type="button" onclick="toggleSymptom(this)" class="symptom-pill bg-gray-100 border border-gray-300 text-gray-700 px-3 py-2 rounded-full text-sm font-medium">Hypertension / High Pressure</button>
+            </div>
+            <input type="text" id="rec-other-symptom" placeholder="Other symptoms..." class="w-full border rounded p-3">
             
             <!-- Camera Capture -->
             <div class="flex items-center justify-center w-full">
-                <label for="rec-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <label for="rec-file" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100">
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg class="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <p class="mb-2 text-sm text-gray-500 font-semibold" id="file-label">Tap to take picture / scan</p>
+                        <p class="text-sm text-blue-600 font-bold" id="file-label">📷 Tap to scan Doctor's Note</p>
                     </div>
                     <input id="rec-file" type="file" accept="image/*" capture="environment" class="hidden" />
                 </label>
             </div>
             
-            <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save PDF & Record</button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded font-bold w-full text-lg shadow-md">Save Visit Record</button>
           </form>
         </div>
         <div id="list-records" class="space-y-3"></div>
@@ -121,14 +109,21 @@
       <!-- Medicines Section -->
       <section id="sec-medicines" class="space-y-4 hidden">
         <div class="bg-white p-4 rounded-lg shadow">
-          <h2 class="font-bold text-gray-700 mb-3">Add Medicine & Track Inventory</h2>
+          <h2 class="font-bold text-gray-700 mb-3">Add Medicine & Link Visit</h2>
           <form id="form-medicine" class="space-y-3">
+            
+            <!-- Link to past visit -->
+            <select id="med-linked-record" class="w-full border rounded p-3 bg-blue-50 font-medium">
+              <option value="">Link to a Doctor's Visit (Optional)</option>
+              <!-- Populated by JS -->
+            </select>
+
             <input type="text" id="med-name" placeholder="Medicine Name" required class="w-full border rounded p-3">
-            <input type="text" id="med-dose" placeholder="Dosage (e.g., 1 tablet, 5ml)" required class="w-full border rounded p-3">
+            <input type="text" id="med-dose" placeholder="Dosage (e.g., 1 tablet)" required class="w-full border rounded p-3">
             
             <div class="flex space-x-2">
-              <input type="number" id="med-inventory" placeholder="Total tablets/ml you have" required class="w-1/2 border rounded p-3">
-              <input type="number" id="med-per-day" placeholder="Total taken per day" required class="w-1/2 border rounded p-3">
+              <input type="number" id="med-inventory" placeholder="Total pills you have" required class="w-1/2 border rounded p-3">
+              <input type="number" id="med-per-day" placeholder="Pills per day" required class="w-1/2 border rounded p-3">
             </div>
             <p id="calc-refill" class="text-sm font-semibold text-green-600 text-center py-2 bg-green-50 rounded hidden"></p>
 
@@ -155,6 +150,7 @@
     let selectedUserName = null;
     let currentUser = null;
     let base64ImageString = null;
+    let myRecordsGlobal = []; // Cache to link medicines
 
     async function apiRequest(method, payload = null, tabName = "") {
       const url = method === "GET" ? `${API_URL}?tab=${tabName}` : API_URL;
@@ -169,7 +165,7 @@
       }
     }
 
-    // UI & Grid Logic
+    // --- UI Logic ---
     function selectProfile(id, name) {
       document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
       document.getElementById(`avatar-${id}`).classList.add('active-avatar');
@@ -184,12 +180,11 @@
 
     async function verifyPin() {
       const btn = document.getElementById('login-btn');
-      btn.innerText = "Loading Data..."; btn.disabled = true;
+      btn.innerText = "Loading..."; btn.disabled = true;
       const pin = document.getElementById('login-pin').value.trim();
 
       const profiles = await apiRequest("GET", null, "Profiles");
       if (profiles) {
-        // Case-insensitive match on ID
         const user = profiles.find(p => p.UserID.toLowerCase() === selectedUserId.toLowerCase() && p.Pin == pin);
         if (user) {
           currentUser = user;
@@ -210,6 +205,7 @@
       document.querySelectorAll('.grid-avatar').forEach(el => el.classList.remove('active-avatar'));
       document.getElementById('dashboard-view').classList.add('hidden');
       document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('alert-area').innerHTML = ''; // Clear alerts
     }
 
     function switchTab(tab) {
@@ -223,7 +219,14 @@
       document.getElementById(`nav-${tab}`).classList.replace('text-gray-500', 'text-blue-600');
     }
 
-    // Dynamic Inventory Math
+    // --- Interactive Symptoms ---
+    function toggleSymptom(btn) {
+      btn.classList.toggle('symptom-selected');
+      btn.classList.toggle('bg-gray-100');
+      btn.classList.toggle('text-gray-700');
+    }
+
+    // --- Dynamic Refill Math ---
     const invInput = document.getElementById('med-inventory');
     const perDayInput = document.getElementById('med-per-day');
     const calcText = document.getElementById('calc-refill');
@@ -233,9 +236,7 @@
       const daily = parseFloat(perDayInput.value);
       if (inv > 0 && daily > 0) {
         const daysLeft = Math.floor(inv / daily);
-        let refillDate = new Date();
-        refillDate.setDate(refillDate.getDate() + daysLeft);
-        calcText.innerText = `Estimated Supply: ${daysLeft} days (Runs out: ${refillDate.toLocaleDateString()})`;
+        calcText.innerText = `Supply: ${daysLeft} days left`;
         calcText.classList.remove('hidden');
       } else {
         calcText.classList.add('hidden');
@@ -244,41 +245,54 @@
     invInput.addEventListener('input', calculateRefill);
     perDayInput.addEventListener('input', calculateRefill);
 
-    // Image Upload Handling
+    // --- Camera Handling ---
     document.getElementById('rec-file').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
-        document.getElementById('file-label').innerText = "✅ " + file.name + " ready to save";
+        document.getElementById('file-label').innerText = "✅ Note Scanned!";
         const reader = new FileReader();
         reader.onloadend = () => { base64ImageString = reader.result; };
         reader.readAsDataURL(file);
       }
     });
 
-    // Form Submissions
+    // --- Form Submissions ---
     function generateId(prefix) { return prefix + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(); }
 
     document.getElementById('form-record').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button');
-      btn.innerText = "Uploading to Drive & Saving..."; btn.disabled = true;
-      const diag = document.getElementById('rec-diagnosis').value;
+      btn.innerText = "Saving Visit..."; btn.disabled = true;
+      
       const dDate = document.getElementById('rec-date').value;
+      const reason = document.getElementById('rec-reason').value;
+      
+      // Gather selected symptoms
+      const selectedPills = Array.from(document.querySelectorAll('.symptom-selected')).map(p => p.innerText);
+      const otherSymptom = document.getElementById('rec-other-symptom').value.trim();
+      if (otherSymptom) selectedPills.push(otherSymptom);
+      const symptomsString = selectedPills.join(', ') || 'No symptoms reported';
 
       const payload = {
         tab: "Medical Records",
-        userName: selectedUserName, // Used by Apps Script to create the personal folder
-        fileName: `${diag} - ${dDate}`,
+        userName: selectedUserName,
+        fileName: `${reason} - ${dDate}`,
         fileData: base64ImageString,
-        rowValues: [generateId('REC'), currentUser.UserID, dDate, diag, diag] // Appending Note + Diagnosis
+        // Backend Schema: RecordID, UserID, Date, Visit Reason, Symptoms, (FileURL appends automatically)
+        rowValues: [generateId('REC'), currentUser.UserID, dDate, reason, symptomsString] 
       };
       
       await apiRequest("POST", payload);
       e.target.reset();
-      document.getElementById('file-label').innerText = "Tap to take picture / scan";
+      
+      // Reset UI state
+      document.getElementById('rec-date').valueAsDate = new Date();
+      document.querySelectorAll('.symptom-selected').forEach(toggleSymptom);
+      document.getElementById('file-label').innerText = "📷 Tap to scan Doctor's Note";
       base64ImageString = null;
-      btn.innerText = "Save PDF & Record"; btn.disabled = false;
-      loadRecords(); 
+      btn.innerText = "Save Visit Record"; btn.disabled = false;
+      
+      loadAllData(); // Reload to update dropdowns
     });
 
     document.getElementById('form-medicine').addEventListener('submit', async (e) => {
@@ -289,12 +303,15 @@
       const inv = parseFloat(invInput.value);
       const daily = parseFloat(perDayInput.value);
       const daysLeft = (inv > 0 && daily > 0) ? Math.floor(inv / daily) : 0;
+      const linkedRecord = document.getElementById('med-linked-record').value;
 
       const payload = {
         tab: "Medicines",
+        // Backend Schema: MedID, UserID, Linked Record, Medicine Name, Dosage, Frequency, Status, Inventory Left, Doses Per Day, Days Remaining
         rowValues: [
           generateId('MED'),
           currentUser.UserID,
+          linkedRecord,
           document.getElementById('med-name').value,
           document.getElementById('med-dose').value,
           `${daily} per day`,
@@ -312,22 +329,39 @@
       loadMedicines(); 
     });
 
-    // Loaders
+    // --- Loaders & Dynamic UI Builders ---
     async function loadRecords() {
       const list = document.getElementById('list-records');
       const data = await apiRequest("GET", null, "Medical Records");
       if (!data) return;
-      const myRecords = data.filter(r => r.UserID.toLowerCase() === currentUser.UserID.toLowerCase()).reverse();
-      list.innerHTML = myRecords.length === 0 ? '<p class="text-center text-gray-500">No records found.</p>' : '';
       
-      myRecords.forEach(r => {
-        const fileLinkHtml = r['File URL'] ? `<a href="${r['File URL']}" target="_blank" class="text-sm text-blue-600 underline mt-2 block">📄 View Scan / PDF</a>` : '';
+      myRecordsGlobal = data.filter(r => r.UserID.toLowerCase() === currentUser.UserID.toLowerCase()).reverse();
+      
+      // 1. Build the Dynamic Visit Reasons Dropdown (Learning AI)
+      const defaultReasons = ["General Physician", "Eye Doctor", "Diabetics Specialist", "Urologist", "Neurologist", "Cardiologist"];
+      const customReasons = myRecordsGlobal.map(r => r['Visit Reason']).filter(Boolean);
+      const allReasons = [...new Set([...defaultReasons, ...customReasons])].sort();
+      
+      document.getElementById('visit-reasons').innerHTML = allReasons.map(r => `<option value="${r}">`).join('');
+
+      // 2. Build the "Link to Record" Dropdown in Medicines Tab
+      const linkSelect = document.getElementById('med-linked-record');
+      linkSelect.innerHTML = '<option value="">None (General Prescription)</option>';
+      myRecordsGlobal.forEach(r => {
+         linkSelect.innerHTML += `<option value="${r.RecordID}">${r.Date}: ${r['Visit Reason']}</option>`;
+      });
+
+      // 3. Render the Records UI
+      list.innerHTML = myRecordsGlobal.length === 0 ? '<p class="text-center text-gray-500 mt-4">No visits logged yet.</p>' : '';
+      myRecordsGlobal.forEach(r => {
+        const fileLinkHtml = r['File URL'] ? `<a href="${r['File URL']}" target="_blank" class="text-sm font-bold text-blue-600 underline mt-2 block">📄 View Scanned Note</a>` : '';
         list.innerHTML += `
           <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
             <div class="flex justify-between items-start">
-              <h3 class="font-bold text-gray-800">${r.Diagnosis}</h3>
-              <span class="text-xs bg-gray-100 px-2 py-1 rounded">${r.Date}</span>
+              <h3 class="font-bold text-gray-800 text-lg">${r['Visit Reason']}</h3>
+              <span class="text-xs bg-gray-100 font-semibold px-2 py-1 rounded border">${r.Date}</span>
             </div>
+            <p class="text-sm text-gray-600 mt-1"><strong>Symptoms:</strong> ${r.Symptoms}</p>
             ${fileLinkHtml}
           </div>`;
       });
@@ -335,27 +369,56 @@
 
     async function loadMedicines() {
       const list = document.getElementById('list-medicines');
+      const alertArea = document.getElementById('alert-area');
       const data = await apiRequest("GET", null, "Medicines");
       if (!data) return;
-      const myMeds = data.filter(m => m.UserID.toLowerCase() === currentUser.UserID.toLowerCase());
-      list.innerHTML = myMeds.length === 0 ? '<p class="text-center text-gray-500">No medicines found.</p>' : '';
       
+      const myMeds = data.filter(m => m.UserID.toLowerCase() === currentUser.UserID.toLowerCase());
+      list.innerHTML = myMeds.length === 0 ? '<p class="text-center text-gray-500 mt-4">No medicines logged yet.</p>' : '';
+      
+      let alertsHtml = '';
+
       myMeds.forEach(m => {
-        const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600';
+        // Build Refill Alerts
+        if (m.Status === 'Active' && m['Days Remaining'] !== "" && parseInt(m['Days Remaining']) <= 2) {
+          alertsHtml += `<div class="bg-red-100 border-l-4 border-red-600 text-red-800 p-3 mb-4 rounded shadow font-bold flex items-center justify-between">
+            <span>⚠️ <b>${m['Medicine Name']}</b> needs a refill! Only ${m['Days Remaining']} days left.</span>
+          </div>`;
+        }
+
+        // Cross-reference Linked Record
+        let linkedNote = '';
+        if (m['Linked Record'] && myRecordsGlobal.length > 0) {
+           const linkedObj = myRecordsGlobal.find(r => r.RecordID === m['Linked Record']);
+           if (linkedObj) {
+               linkedNote = `<div class="mt-2 text-xs bg-blue-50 text-blue-800 p-2 rounded border border-blue-100">🔗 Prescribed during: <b>${linkedObj['Visit Reason']}</b> (${linkedObj.Date})</div>`;
+           }
+        }
+
+        const statusColor = m.Status === 'Active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200';
         let supplyNote = m['Days Remaining'] ? `<p class="text-sm font-semibold text-orange-600 mt-2">Supply: ~${m['Days Remaining']} days left</p>` : '';
+        
         list.innerHTML += `
-          <div class="bg-white p-4 rounded-lg shadow">
+          <div class="bg-white p-4 rounded-lg shadow border">
             <div class="flex justify-between items-center mb-1">
-              <h3 class="font-bold text-gray-800">${m['Medicine Name']}</h3>
-              <span class="text-xs px-2 py-1 rounded-full ${statusColor}">${m.Status}</span>
+              <h3 class="font-bold text-gray-800 text-lg">${m['Medicine Name']}</h3>
+              <span class="text-xs px-2 py-1 rounded-full border ${statusColor}">${m.Status}</span>
             </div>
             <p class="text-sm text-gray-600"><strong>Dose:</strong> ${m.Dosage} | <strong>Freq:</strong> ${m.Frequency}</p>
             ${supplyNote}
+            ${linkedNote}
           </div>`;
       });
+
+      alertArea.innerHTML = alertsHtml;
     }
 
-    async function loadAllData() { loadRecords(); loadMedicines(); }
+    async function loadAllData() { 
+      await loadRecords(); // Important: Load records first so medicines can cross-reference them
+      loadMedicines(); 
+    }
+    
+    // Initialize date to today
     document.getElementById('rec-date').valueAsDate = new Date();
   </script>
 </body>
